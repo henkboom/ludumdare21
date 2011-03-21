@@ -4,7 +4,9 @@ LIBRARIES += \
     dokidoki
 
 LUA_SRC += \
-    init.lua
+    game.lua \
+    init.lua \
+    player.lua
 
 C_SRC +=
 
