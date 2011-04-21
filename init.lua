@@ -9,3 +9,5 @@ dokidoki_kernel.start_main_loop(dokidoki_game.make_game(
   {'preupdate', 'update', 'postupdate'},
   {'predraw', 'draw', 'postdraw'}, 
   'game'))
+
+
