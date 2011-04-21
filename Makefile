@@ -2,15 +2,17 @@
 build:
 
 # OS detection, cut at 7 chars for mingw
+ifndef PLATFORM
 UNAME := $(shell uname | cut -c 1-7)
 ifeq ($(UNAME), Linux)
-PLATFORM_PREFIX := LINUX
+PLATFORM := LINUX
 endif
 ifeq ($(UNAME), Darwin)
-PLATFORM_PREFIX := MACOSX
+PLATFORM := MACOSX
 endif
 ifeq ($(UNAME), MINGW32)
-PLATFORM_PREFIX := MINGW
+PLATFORM := MINGW
+endif
 endif
 
 # initialize variables, load project settings
@@ -31,10 +33,12 @@ include project.dd
 include $(LIBRARIES:%=%/project.dd)
 
 # now initialize other variables from the project settings
+ifndef TARGET_DIR
 TARGET_DIR := $(PROJECT_NAME)
+endif
 TARGET_EXE := $(TARGET_DIR)/$(PROJECT_NAME)
 
-OBJS := $(C_SRC:.c=.o)
+OBJS := $(C_SRC:.c=.o) $(CXX_SRC:.cpp=.o)
 DEPS := $(C_SRC:.c=.P)
 LUA_TARGETS=$(LUA_SRC:%=$(TARGET_DIR)/%)
 RESOURCE_TARGETS=$(RESOURCES:%=$(TARGET_DIR)/%)
@@ -46,17 +50,32 @@ resources: $(LUA_TARGETS) $(RESOURCE_TARGETS)
 $(TARGET_EXE): $(OBJS)
 	@echo linking $@...
 	@mkdir -p `dirname $@`
-	@gcc -o $@ $^ $(LDFLAGS) $($(PLATFORM_PREFIX)_LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS) $($(PLATFORM)_LDFLAGS)
 
 %.o: %.c
 	@echo building $@...
-	@gcc -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM_PREFIX)_CFLAGS)
+	$(CC) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
 	@cp $*.d $*.P;
 	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P
 	@rm -f $*.d
 
-$(RESOURCE_TARGETS) $(LUA_TARGETS): $(TARGET_DIR)/%: %
+%.o: %.cpp
+	@echo building $@...
+	$(CXX) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
+	@cp $*.d $*.P;
+	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P
+	@rm -f $*.d
+
+$(RESOURCE_TARGETS): $(TARGET_DIR)/%: %
+	@echo copying $@...
+	@mkdir -p `dirname $@`
+	@cp $^ $@
+
+$(LUA_TARGETS): $(TARGET_DIR)/%: %
+	@echo verifying $@...
+	@luac -p $^
 	@echo copying $@...
 	@mkdir -p `dirname $@`
 	@cp $^ $@
