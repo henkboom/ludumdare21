@@ -18,6 +18,8 @@ endif
 # initialize variables, load project settings
 PROJECT_NAME := unnamed
 LIBRARIES :=
+C_SRC :=
+OBJS :=
 CFLAGS :=
 LDFLAGS :=
 LINUX_CFLAGS :=
@@ -30,16 +32,17 @@ LUA_SRC :=
 LUA_NATIVE_MODULES :=
 
 include project.dd
-include $(LIBRARIES:%=%/project.dd)
-
-# now initialize other variables from the project settings
 ifndef TARGET_DIR
 TARGET_DIR := $(PROJECT_NAME)
 endif
 TARGET_EXE := $(TARGET_DIR)/$(PROJECT_NAME)
 
+include $(LIBRARIES:%=%/project.dd)
+
+# now initialize other variables from the project settings
+
 OBJS := $(C_SRC:.c=.o) $(CXX_SRC:.cpp=.o)
-DEPS := $(C_SRC:.c=.P)
+DEPS := $(C_SRC:.c=.P) $(CXX_SRC:.cpp=.P)
 LUA_TARGETS=$(LUA_SRC:%=$(TARGET_DIR)/%)
 RESOURCE_TARGETS=$(RESOURCES:%=$(TARGET_DIR)/%)
 
