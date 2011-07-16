@@ -51,21 +51,21 @@ build: $(TARGET_EXE) resources $(LIBRARY_RESOURCES)
 resources: $(LUA_TARGETS) $(RESOURCE_TARGETS)
 
 $(TARGET_EXE): $(OBJS)
-	@echo linking $@...
+	@echo linking $@
 	@mkdir -p `dirname $@`
 	@$(CXX) -o $@ $^ $(LDFLAGS) $($(PLATFORM)_LDFLAGS)
 
 %.o: %.c
-	@echo building $@...
-	$(CC) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
+	@echo compiling $@
+	@$(CC) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
 	@cp $*.d $*.P;
 	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P
 	@rm -f $*.d
 
 %.o: %.cpp
-	@echo building $@...
-	$(CXX) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
+	@echo compiling $@
+	@$(CXX) -MD -o $@ $< -c $(CFLAGS) $($(PLATFORM)_CFLAGS)
 	@cp $*.d $*.P;
 	@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P
@@ -86,5 +86,7 @@ $(LUA_TARGETS): $(TARGET_DIR)/%: %
 clean:
 	rm -f $(OBJS) $(DEPS)
 	rm -rf $(TARGET_DIR)
+
+clean-all: clean
 
 -include $(DEPS)
