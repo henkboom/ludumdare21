@@ -1,7 +1,8 @@
 PROJECT_NAME := dokidoki-template
 
 LIBRARIES += \
-    dokidoki
+    dokidoki \
+    physics
 
 LUA_SRC += \
     game.lua \
