@@ -1,4 +1,4 @@
-PROJECT_NAME := dokidoki-template
+PROJECT_NAME := ludumdare21
 
 LIBRARIES += \
     dokidoki \

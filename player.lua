@@ -1,4 +1,5 @@
 local vect = require 'dokidoki.vect'
+local glfw = require 'glfw'
 
 transform = game.add_component(self, 'dokidoki.transform', {
   pos = vect(100, 100)
@@ -10,7 +11,7 @@ sprite = game.add_component(self, 'dokidoki.sprite', {
 local function wasd_input(w, a, s, d)
   local dir = vect((d and 1 or 0) - (a and 1 or 0),
                    (w and 1 or 0) - (s and 1 or 0))
-  return dir ~= vect.zero and vect.norm(dir) or dir
+  return dir ~= vect.zero and vect.norm(dir)*4 or dir
 end
 
 function update()
