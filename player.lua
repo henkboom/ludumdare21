@@ -1,23 +1,32 @@
 local vect = require 'dokidoki.vect'
+local quaternion = require 'dokidoki.quaternion'
 local glfw = require 'glfw'
 
-transform = game.add_component(self, 'dokidoki.transform', {
-  pos = vect(100, 100)
-})
-sprite = game.add_component(self, 'dokidoki.sprite', {
-  scale = vect(10, 10)
-})
+local vel = vect.zero
 
-local function wasd_input(w, a, s, d)
-  local dir = vect((d and 1 or 0) - (a and 1 or 0),
-                   (w and 1 or 0) - (s and 1 or 0))
-  return dir ~= vect.zero and vect.norm(dir)*4 or dir
-end
+transform = game.add_component(self, 'dokidoki.transform')
+graphics = game.add_component(self, 'player_graphics')
 
 function update()
-  transform.pos = transform.pos + 2 * wasd_input(
-    game.keyboard.key_held(string.byte('W')),
-    game.keyboard.key_held(string.byte('A')),
-    game.keyboard.key_held(string.byte('S')),
-    game.keyboard.key_held(string.byte('D')))
+
+  ---- rotation ----
+  local turning = (game.keyboard.key_held(glfw.KEY_LEFT)  and 1 or 0) -
+                  (game.keyboard.key_held(glfw.KEY_RIGHT) and 1 or 0)
+  transform.orientation = transform.orientation *
+    quaternion.from_rotation(vect.k, turning * math.pi * 0.03)
+
+  ---- acceleration ----
+  local forward = quaternion.rotated_i(transform.orientation)
+  local left = quaternion.rotated_j(transform.orientation)
+
+  if game.keyboard.key_held(string.byte('X')) then
+    vel = vel + forward * 0.5
+  end
+
+  ---- damping ----
+  vel = vel - vect.project(vel, left) * 0.03;
+  vel = vel * 0.98
+
+  ---- movement ----
+  transform.pos = transform.pos + vel
 end

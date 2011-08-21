@@ -4,10 +4,7 @@ LIBRARIES += \
     dokidoki \
     physics
 
-LUA_SRC += \
-    game.lua \
-    init.lua \
-    player.lua
+LUA_SRC += $(wildcard *.lua)
 
 C_SRC +=
 
